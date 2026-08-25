@@ -3,70 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YellowNet — Вход и Регистрация</title>
+    <title>YellowNet — Вход</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #0d0d0d; }
-        .auth-card { background: #18181b; padding: 32px; border-radius: 20px; border: 1px solid #27272a; width: 100%; max-width: 400px; }
-        .auth-title { font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-        .auth-form { display: flex; flex-direction: column; gap: 14px; }
-        .auth-input { background: #27272a; border: 1px solid #3f3f46; border-radius: 10px; padding: 12px; color: white; outline: none; }
-        .auth-btn { background: #facc15; color: black; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .toggle-btn { background: none; border: none; color: #a1a1aa; margin-top: 16px; width: 100%; cursor: pointer; text-decoration: underline; }
-        .flash-msg { color: #ef4444; font-size: 13px; text-align: center; margin-bottom: 10px; }
-    </style>
 </head>
-<body>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #09090b; margin: 0;">
 
-<div class="auth-card">
-    <div class="logo" style="justify-content: center; margin-bottom: 20px;">
-        YellowNet <span class="logo-dot"></span>
-    </div>
+    <div class="card" style="width: 100%; max-width: 400px; padding: 30px; background: #121214; border: 1px solid #27272a; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+        
+        <div style="text-align: center; margin-bottom: 24px;">
+            <h2 style="color: #fff; margin-bottom: 5px;">YellowNet <span style="color: #facc15;">●</span></h2>
+            <p style="color: #a1a1aa; font-size: 14px;">Вход в аккаунт</p>
+        </div>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="flash-msg">{{ messages[0] }}</div>
-      {% endif %}
-    {% endwith %}
+        {% if error %}
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; text-align: center;">
+                {{ error }}
+            </div>
+        {% endif %}
 
-    <!-- Форма Входа -->
-    <div id="login-block">
-        <h2 class="auth-title">Вход в аккаунт</h2>
-        <form action="/login" method="POST" class="auth-form">
-            <input type="text" name="username" class="auth-input" placeholder="Логин или Email" required>
-            <input type="password" name="password" class="auth-input" placeholder="Пароль" required>
-            <button type="submit" class="auth-btn">Войти</button>
+        <!-- Обязательно должен быть тег form с методом POST -->
+        <form action="/login" method="POST">
+            <div style="margin-bottom: 15px;">
+                <input type="text" name="username" class="input-field" placeholder="Логин" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <input type="password" name="password" class="input-field" placeholder="Пароль" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            </div>
+
+            <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px; background: #facc15; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000;">Войти</button>
         </form>
-        <button class="toggle-btn" onclick="toggleAuth()">Нет аккаунта? Зарегистрироваться</button>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="#" onclick="toggleAuth()" id="switchText" style="color: #a1a1aa; font-size: 13px; text-decoration: none;">Нет аккаунта? Зарегистрироваться</a>
+        </div>
+
     </div>
 
-    <!-- Форма Регистрации -->
-    <div id="register-block" style="display: none;">
-        <h2 class="auth-title">Создать аккаунт</h2>
-        <form action="/register" method="POST" class="auth-form">
-            <input type="text" name="username" class="auth-input" placeholder="Логин (никнейм)" required>
-            <input type="email" name="email" class="auth-input" placeholder="Электронная почта" required>
-            <input type="tel" name="phone" class="auth-input" placeholder="Номер телефона (+7...)" required>
-            <input type="password" name="password" class="auth-input" placeholder="Придумайте пароль" required>
-            <button type="submit" class="auth-btn">Зарегистрироваться</button>
-        </form>
-        <button class="toggle-btn" onclick="toggleAuth()">Уже есть аккаунт? Войти</button>
-    </div>
-</div>
-
-<script>
-    function toggleAuth() {
-        const login = document.getElementById('login-block');
-        const reg = document.getElementById('register-block');
-        if (login.style.display === 'none') {
-            login.style.display = 'block';
-            reg.style.display = 'none';
-        } else {
-            login.style.display = 'none';
-            reg.style.display = 'block';
+    <!-- Скрипт для переключения на форму регистрации (если на сервере предусмотрено) -->
+    <script>
+        function toggleAuth() {
+            alert("Для регистрации введите желаемый логин, email, телефон и пароль на этой же странице или создайте отдельный маршрут регистрации.");
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
