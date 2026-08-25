@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
+    <!-- Боковая панель -->
     <aside class="sidebar">
         <div>
             <div class="logo">
@@ -23,13 +23,14 @@
                 <li><a href="#" class="nav-link" data-tab="tab-settings">⚙️ Настройки</a></li>
             </ul>
         </div>
+        
         <div class="sidebar-banner">
-            <h4>💛 YellowNet</h4>
-            <p>Ваша социальная сеть нового поколения.</p>
+            <h4>💛 Общайся. Делись. Вдохновляй.</h4>
+            <p>YellowNet — твоя сеть для общения и обмена видео.</p>
         </div>
     </aside>
 
-    <!-- Main Area -->
+    <!-- Главный контент -->
     <main class="main-container">
         
         <header class="top-header">
@@ -42,7 +43,7 @@
 
         {% with messages = get_flashed_messages() %}
           {% if messages %}
-            <div style="background: #27272a; border: 1px solid #facc15; color: #facc15; padding: 12px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="background: #18181b; border: 1px solid #facc15; color: #facc15; padding: 12px; border-radius: 12px; margin-bottom: 20px;">
               {% for message in messages %}
                 <p>{{ message }}</p>
               {% endfor %}
@@ -50,72 +51,77 @@
           {% endif %}
         {% endwith %}
 
-        <!-- TAB 1: ГЛАВНАЯ -->
+        <!-- Вкладка: ГЛАВНАЯ -->
         <section id="tab-home" class="tab-content active-tab">
-            <div class="welcome-card">
-                <h1>Привет, {{ user }}! 👋</h1>
-                <p>Добро пожаловать в YellowNet — общайтесь и делитесь видео моментально.</p>
+            
+            <!-- Приветственный блок с иллюстрацией -->
+            <div class="welcome-card" style="display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
+                <div>
+                    <h1>Привет, {{ user }}! 👋</h1>
+                    <p style="max-width: 450px; margin-top: 8px;">Добро пожаловать в YellowNet — место, где люди общаются и делятся моментами.</p>
+                </div>
+                <div style="font-size: 40px;">💬👥✨</div>
             </div>
 
+            <!-- Сетка: Друзья и Отправка -->
             <div class="grid-2">
+                <!-- Блок друзей -->
                 <div class="card">
-                    <h3 class="card-title">🧡 Добавить друга</h3>
-                    <p class="card-subtitle">Введите никнейм зарегистрированного пользователя</p>
-                    <form action="/add_friend" method="POST" class="input-group">
-                        <input type="text" name="friend_name" class="input-field" placeholder="Никнейм..." required>
-                        <button type="submit" class="btn-yellow">Добавить</button>
+                    <h3 class="card-title">🧡 Мои друзья</h3>
+                    <p class="card-subtitle">Добавляйте друзей и оставайтесь на связи!</p>
+                    <form action="/add_friend" method="POST" class="input-group" style="margin-bottom: 20px;">
+                        <input type="text" name="friend_name" class="input-field" placeholder="Никнейм друга" required>
+                        <button type="submit" class="btn-yellow">Добавить в друзья</button>
                     </form>
+                    <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 10px;">Список друзей</p>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        {% if friends %}
+                            {% for f in friends %}
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                                    <div style="width: 45px; height: 45px; background: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #3f3f46;">{{ f[0].upper() }}</div>
+                                    <span style="font-size: 11px; color: #a1a1aa;">@{{ f }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="color: #71717a; font-size: 13px;">Список пока пуст</p>
+                        {% endif %}
+                    </div>
                 </div>
 
+                <!-- Блок отправки видео -->
                 <div class="card">
-                    <h3 class="card-title">📷 Быстрая отправка</h3>
-                    <p class="card-subtitle">Выделите видео и выберите получателя</p>
+                    <h3 class="card-title">📷 Отправить видео другу</h3>
+                    <p class="card-subtitle">Поделитесь моментом — отправьте видео любому другу.</p>
                     <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                        <select name="receiver" class="input-field" style="margin-bottom: 10px; width: 100%;" required>
-                            <option value="" disabled selected>Выберите друга...</option>
+                        <select name="receiver" class="input-field" style="margin-bottom: 12px; width: 100%;" required>
+                            <option value="" disabled selected>Выберите получателя...</option>
                             {% for f in friends %}
                                 <option value="{{ f }}">{{ f }}</option>
                             {% endfor %}
                         </select>
-                        <input type="file" name="video_file" class="input-field" accept="video/*" required style="width: 100%; margin-bottom: 10px;">
+                        
+                        <input type="file" name="video_file" id="videoInput" accept="video/*" required style="display: none;" onchange="document.getElementById('fileNameText').innerText = this.files[0].name">
+                        
+                        <div class="upload-box" onclick="document.getElementById('videoInput').click()" style="border: 2px dashed #3f3f46; border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: #09090b; margin-bottom: 15px; transition: 0.2s;">
+                            <div style="font-size: 24px; margin-bottom: 5px;">☁️</div>
+                            <span id="fileNameText" style="color: #a1a1aa; font-size: 13px;">Нажмите, чтобы выбрать видео<br>или перетащите файл сюда</span>
+                        </div>
+
                         <button type="submit" class="btn-yellow" style="width: 100%;">Отправить видео</button>
                     </form>
                 </div>
             </div>
-        </section>
 
-        <!-- TAB 2: ДРУЗЬЯ -->
-        <section id="tab-friends" class="tab-content">
-            <div class="card">
-                <h3 class="card-title">👥 Список ваших друзей ({{ friends|length }})</h3>
-                <p class="card-subtitle">Пользователи, с которыми вы можете обмениваться видео</p>
-                {% if friends %}
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-                        {% for f in friends %}
-                            <li style="background: #27272a; padding: 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
-                                <span>👤 @{{ f }}</span>
-                                <span style="color: #22c55e; font-size: 12px;">● В сети</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p style="color: #a1a1aa;">У вас пока нет добавленных друзей. Воспользуйтесь формой на главной странице!</p>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- TAB 3: ВХОДЯЩИЕ ВИДЕО -->
-        <section id="tab-inbox" class="tab-content">
+            <!-- Блок входящих видео -->
             <div class="card">
                 <h3 class="card-title">🎬 Входящие видео</h3>
-                <p class="card-subtitle">Все видеоролики, присланные вам друзьями</p>
-                <div class="video-grid">
+                <p class="card-subtitle">Ваши полученные видео от друзей</p>
+                <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
                     {% if videos %}
                         {% for v in videos %}
                             <div class="video-card">
-                                <video controls style="width: 100%; height: 180px; object-fit: cover;">
+                                <video controls style="width: 100%; height: 140px; object-fit: cover; border-radius: 10px 10px 0 0;">
                                     <source src="{{ url_for('static', filename='uploads/' + v[0]) }}">
-                                    Ваш браузер не поддерживает видео.
                                 </video>
                                 <div class="video-info">
                                     <p class="video-author">От @{{ v[1] }}</p>
@@ -124,72 +130,112 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p style="color: #a1a1aa; grid-column: span 4;">Входящих видео пока нет.</p>
+                        <p style="color: #a1a1aa; font-size: 14px; grid-column: span 4;">Видео пока нет. Будьте первыми!</p>
+                    {% endif %}
+                </div>
+                <button onclick="document.querySelector('[data-tab=\'tab-inbox\']').click()" class="btn-yellow" style="background: transparent; border: 1px solid #facc15; color: #facc15; width: 100%;">Смотреть все входящие</button>
+            </div>
+        </section>
+
+        <!-- Вкладка: ДРУЗЬЯ -->
+        <section id="tab-friends" class="tab-content">
+            <div class="card">
+                <h3 class="card-title">👥 Все друзья</h3>
+                <p class="card-subtitle">Ваш полный список контактов</p>
+                {% if friends %}
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                        {% for f in friends %}
+                            <li style="background: #09090b; padding: 14px; border-radius: 10px; border: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center;">
+                                <span>👤 @{{ f }}</span>
+                                <span style="color: #22c55e; font-size: 12px;">● В сети</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color: #a1a1aa;">У вас пока нет друзей.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Вкладка: ВХОДЯЩИЕ ВИДЕО -->
+        <section id="tab-inbox" class="tab-content">
+            <div class="card">
+                <h3 class="card-title">📥 Все входящие видео</h3>
+                <p class="card-subtitle">Архив всех полученных медиафайлов</p>
+                <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
+                    {% if videos %}
+                        {% for v in videos %}
+                            <div class="video-card">
+                                <video controls style="width: 100%; height: 140px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                                    <source src="{{ url_for('static', filename='uploads/' + v[0]) }}">
+                                </video>
+                                <div class="video-info">
+                                    <p class="video-author">От @{{ v[1] }}</p>
+                                    <p class="video-time">{{ v[2] }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #a1a1aa;">Видео пока не поступали.</p>
                     {% endif %}
                 </div>
             </div>
         </section>
 
-        <!-- TAB 4: ОТПРАВИТЬ ВИДЕО -->
+        <!-- Вкладка: ОТПРАВИТЬ ВИДЕО -->
         <section id="tab-send" class="tab-content">
-            <div class="card" style="max-width: 600px;">
-                <h3 class="card-title">📤 Отправить видеоролик</h3>
-                <p class="card-subtitle">Выберите получателя и файл с ПК или телефона</p>
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3 class="card-title">📤 Отправить видео</h3>
+                <p class="card-subtitle">Загрузите видеофайл для друга</p>
                 <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                    <label style="display:block; margin-bottom: 5px; color:#aaa;">Получатель:</label>
                     <select name="receiver" class="input-field" style="margin-bottom: 15px; width: 100%;" required>
-                        <option value="" disabled selected>Выберите из списка друзей...</option>
+                        <option value="" disabled selected>Выберите друга...</option>
                         {% for f in friends %}
                             <option value="{{ f }}">{{ f }}</option>
                         {% endfor %}
                     </select>
-                    
-                    <label style="display:block; margin-bottom: 5px; color:#aaa;">Видео файл:</label>
                     <input type="file" name="video_file" class="input-field" accept="video/*" required style="width: 100%; margin-bottom: 15px;">
-                    
-                    <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px;">Загрузить и отправить</button>
+                    <button type="submit" class="btn-yellow" style="width: 100%;">Отправить файл</button>
                 </form>
             </div>
         </section>
 
-        <!-- TAB 5: УВЕДОМЛЕНИЯ -->
+        <!-- Вкладка: УВЕДОМЛЕНИЯ -->
         <section id="tab-notifications" class="tab-content">
             <div class="card">
-                <h3 class="card-title">🔔 Центр уведомлений</h3>
-                <p class="card-subtitle">История ваших действий и сообщений</p>
+                <h3 class="card-title">🔔 Уведомления</h3>
+                <p class="card-subtitle">История событий</p>
                 {% if notifications %}
                     <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
                         {% for n in notifications %}
-                            <li style="background: #27272a; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between;">
+                            <li style="background: #09090b; padding: 12px; border-radius: 10px; border: 1px solid #27272a; display: flex; justify-content: space-between;">
                                 <span>{{ n[0] }}</span>
                                 <span style="color: #71717a; font-size: 12px;">{{ n[1] }}</span>
                             </li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p style="color: #a1a1aa;">Новых уведомлений нет.</p>
+                    <p style="color: #a1a1aa;">Уведомлений пока нет.</p>
                 {% endif %}
             </div>
         </section>
 
-        <!-- TAB 6: НАСТРОЙКИ -->
+        <!-- Вкладка: НАСТРОЙКИ -->
         <section id="tab-settings" class="tab-content">
-            <div class="card" style="max-width: 600px;">
-                <h3 class="card-title">⚙️ Настройки аккаунта</h3>
-                <p class="card-subtitle">Данные вашего профиля</p>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div><strong>Логин:</strong> {{ user }}</div>
-                    <div><strong>Email:</strong> {{ user_info[1] }}</div>
-                    <div><strong>Телефон:</strong> {{ user_info[2] }}</div>
-                    <hr style="border-color: #27272a; margin: 10px 0;">
-                    <a href="/logout" class="btn-yellow" style="text-align: center; text-decoration: none;">Выйти из аккаунта</a>
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3 class="card-title">⚙️ Настройки</h3>
+                <p class="card-subtitle">Информация об учетной записи</p>
+                <div style="display: flex; flex-direction: column; gap: 12px; color: #a1a1aa;">
+                    <div><strong style="color: #fff;">Логин:</strong> {{ user }}</div>
+                    <div><strong style="color: #fff;">Email:</strong> {{ user_info[1] }}</div>
+                    <div><strong style="color: #fff;">Телефон:</strong> {{ user_info[2] }}</div>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Скрипт мгновенного переключения вкладок -->
+    <!-- Скрипт переключения вкладок -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const tabContents = document.querySelectorAll('.tab-content');
