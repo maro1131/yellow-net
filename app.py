@@ -1,10 +1,18 @@
 import os
 import sqlite3
+from datetime import timedelta
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'yellownet_super_secret_key'
+
+# Настройки для сохранения сессии, чтобы не приходилось логиниться заново
+app.permanent_session_lifetime = timedelta(days=31)
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv', 'webm'}
