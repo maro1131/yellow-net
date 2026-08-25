@@ -53,8 +53,6 @@
 
         <!-- Вкладка: ГЛАВНАЯ -->
         <section id="tab-home" class="tab-content active-tab">
-            
-            <!-- Приветственный блок с иллюстрацией -->
             <div class="welcome-card" style="display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
                 <div>
                     <h1>Привет, {{ user }}! 👋</h1>
@@ -63,7 +61,6 @@
                 <div style="font-size: 40px;">💬👥✨</div>
             </div>
 
-            <!-- Сетка: Друзья и Отправка -->
             <div class="grid-2">
                 <!-- Блок друзей -->
                 <div class="card">
@@ -88,23 +85,23 @@
                     </div>
                 </div>
 
-                <!-- Блок отправки видео -->
+                <!-- Блок отправки видео (как на 2 фотке) -->
                 <div class="card">
-                    <h3 class="card-title">📷 Отправить видео другу</h3>
+                    <h3 class="card-title">📤 Отправить видео другу</h3>
                     <p class="card-subtitle">Поделитесь моментом — отправьте видео любому другу.</p>
                     <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                        <select name="receiver" class="input-field" style="margin-bottom: 12px; width: 100%;" required>
+                        <select name="receiver" class="input-field" style="margin-bottom: 15px; width: 100%;" required>
                             <option value="" disabled selected>Выберите получателя...</option>
                             {% for f in friends %}
                                 <option value="{{ f }}">{{ f }}</option>
                             {% endfor %}
                         </select>
                         
-                        <input type="file" name="video_file" id="videoInput" accept="video/*" required style="display: none;" onchange="document.getElementById('fileNameText').innerText = this.files[0].name">
+                        <input type="file" name="video_file" id="homeVideoInput" accept="video/*" required style="display: none;" onchange="document.getElementById('homeFileName').innerText = this.files[0].name">
                         
-                        <div class="upload-box" onclick="document.getElementById('videoInput').click()" style="border: 2px dashed #3f3f46; border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: #09090b; margin-bottom: 15px; transition: 0.2s;">
+                        <div onclick="document.getElementById('homeVideoInput').click()" style="border: 2px dashed #3f3f46; border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: #09090b; margin-bottom: 15px; transition: 0.2s;">
                             <div style="font-size: 24px; margin-bottom: 5px;">☁️</div>
-                            <span id="fileNameText" style="color: #a1a1aa; font-size: 13px;">Нажмите, чтобы выбрать видео<br>или перетащите файл сюда</span>
+                            <span id="homeFileName" style="color: #a1a1aa; font-size: 13px;">Нажмите, чтобы выбрать видео<br>или перетащите файл сюда</span>
                         </div>
 
                         <button type="submit" class="btn-yellow" style="width: 100%;">Отправить видео</button>
@@ -112,7 +109,7 @@
                 </div>
             </div>
 
-            <!-- Блок входящих видео -->
+            <!-- Входящие видео -->
             <div class="card">
                 <h3 class="card-title">🎬 Входящие видео</h3>
                 <p class="card-subtitle">Ваши полученные видео от друзей</p>
@@ -130,7 +127,7 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p style="color: #a1a1aa; font-size: 14px; grid-column: span 4;">Видео пока нет. Будьте первыми!</p>
+                        <p style="color: #a1a1aa; font-size: 14px;">Видео пока нет. Будьте первыми!</p>
                     {% endif %}
                 </div>
                 <button onclick="document.querySelector('[data-tab=\'tab-inbox\']').click()" class="btn-yellow" style="background: transparent; border: 1px solid #facc15; color: #facc15; width: 100%;">Смотреть все входящие</button>
@@ -182,7 +179,7 @@
             </div>
         </section>
 
-        <!-- Вкладка: ОТПРАВИТЬ ВИДЕО -->
+        <!-- Вкладка: ОТПРАВИТЬ ВИДЕО (Отдельный раздел) -->
         <section id="tab-send" class="tab-content">
             <div class="card" style="max-width: 600px; margin: 0 auto;">
                 <h3 class="card-title">📤 Отправить видео</h3>
@@ -194,7 +191,14 @@
                             <option value="{{ f }}">{{ f }}</option>
                         {% endfor %}
                     </select>
-                    <input type="file" name="video_file" class="input-field" accept="video/*" required style="width: 100%; margin-bottom: 15px;">
+                    
+                    <input type="file" name="video_file" id="sendVideoInput" accept="video/*" required style="display: none;" onchange="document.getElementById('sendFileName').innerText = this.files[0].name">
+                    
+                    <div onclick="document.getElementById('sendVideoInput').click()" style="border: 2px dashed #3f3f46; border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: #09090b; margin-bottom: 15px; transition: 0.2s;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">☁️</div>
+                        <span id="sendFileName" style="color: #a1a1aa; font-size: 13px;">Нажмите, чтобы выбрать видео<br>или перетащите файл сюда</span>
+                    </div>
+
                     <button type="submit" class="btn-yellow" style="width: 100%;">Отправить файл</button>
                 </form>
             </div>
@@ -235,7 +239,6 @@
 
     </main>
 
-    <!-- Скрипт переключения вкладок -->
     <script>
         const navLinks = document.querySelectorAll('.nav-link');
         const tabContents = document.querySelectorAll('.tab-content');
