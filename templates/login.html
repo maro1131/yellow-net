@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YellowNet — Вход</title>
+    <title>YellowNet — Вход и Регистрация</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #09090b; margin: 0;">
@@ -12,7 +12,7 @@
         
         <div style="text-align: center; margin-bottom: 24px;">
             <h2 style="color: #fff; margin-bottom: 5px;">YellowNet <span style="color: #facc15;">●</span></h2>
-            <p style="color: #a1a1aa; font-size: 14px;">Вход в аккаунт</p>
+            <p id="formSubtitle" style="color: #a1a1aa; font-size: 14px;">Вход в аккаунт</p>
         </div>
 
         {% if error %}
@@ -21,8 +21,8 @@
             </div>
         {% endif %}
 
-        <!-- Обязательно должен быть тег form с методом POST -->
-        <form action="/login" method="POST">
+        <!-- ФОРМА ВХОДА -->
+        <form id="loginForm" action="/login" method="POST">
             <div style="margin-bottom: 15px;">
                 <input type="text" name="username" class="input-field" placeholder="Логин" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
             </div>
@@ -34,16 +34,54 @@
             <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px; background: #facc15; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000;">Войти</button>
         </form>
 
+        <!-- ФОРМА РЕГИСТРАЦИИ (скрыта по умолчанию) -->
+        <form id="registerForm" action="/register" method="POST" style="display: none;">
+            <div style="margin-bottom: 12px;">
+                <input type="text" name="username" class="input-field" placeholder="Придумайте логин" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <input type="email" name="email" class="input-field" placeholder="Ваш Email" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <input type="text" name="phone" class="input-field" placeholder="Номер телефона" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <input type="password" name="password" class="input-field" placeholder="Придумайте пароль" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            </div>
+
+            <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px; background: #facc15; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000;">Зарегистрироваться</button>
+        </form>
+
         <div style="text-align: center; margin-top: 20px;">
-            <a href="#" onclick="toggleAuth()" id="switchText" style="color: #a1a1aa; font-size: 13px; text-decoration: none;">Нет аккаунта? Зарегистрироваться</a>
+            <a href="#" onclick="toggleAuth(event)" id="switchText" style="color: #a1a1aa; font-size: 13px; text-decoration: none;">Нет аккаунта? Зарегистрироваться</a>
         </div>
 
     </div>
 
-    <!-- Скрипт для переключения на форму регистрации (если на сервере предусмотрено) -->
     <script>
-        function toggleAuth() {
-            alert("Для регистрации введите желаемый логин, email, телефон и пароль на этой же странице или создайте отдельный маршрут регистрации.");
+        let isLogin = true;
+        function toggleAuth(e) {
+            e.preventDefault();
+            isLogin = !isLogin;
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const subtitle = document.getElementById('formSubtitle');
+            const switchText = document.getElementById('switchText');
+
+            if (isLogin) {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                subtitle.innerText = 'Вход в аккаунт';
+                switchText.innerText = 'Нет аккаунта? Зарегистрироваться';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                subtitle.innerText = 'Регистрация в YellowNet';
+                switchText.innerText = 'Уже есть аккаунт? Войти';
+            }
         }
     </script>
 </body>
