@@ -1,82 +1,78 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'yellow_secret_key'
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.secret_key = 'yellownet_super_secret_key'
 
-# Простая база данных в памяти
-users = {}  # {username: password}
-friends = {} # {username: [list_of_friends]}
-messages = [] # [{sender, receiver, filename}]
+# Инициализация базы данных
+def init_db():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            phone TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+init_db()
 
 @app.route('/')
 def home():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    user = session['user']
-    user_friends = friends.get(user, [])
-    user_videos = [m for m in messages if m['receiver'] == user]
-    return render_template('dashboard.html', user=user, friends=user_friends, videos=user_videos)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username'].strip()
-        password = request.form['password']
-        if username in users:
-            return "Пользователь уже существует!"
-        users[username] = password
-        friends[username] = []
-        session['user'] = username
-        return redirect(url_for('home'))
-    return render_template('register.html')
+    if 'username' in session:
+        return render_template('dashboard.html', username=session['username'])
+    return redirect(url_for('login_page'))
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login_page():
     if request.method == 'POST':
-        username = request.form['username'].strip()
+        login_input = request.form['username']
         password = request.form['password']
-        if users.get(username) == password:
-            session['user'] = username
+
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?', 
+                       (login_input, login_input, password))
+        user = cursor.fetchone()
+        conn.close()
+
+        if user:
+            session['username'] = user[1]
             return redirect(url_for('home'))
-        return "Неверный логин или пароль!"
+        else:
+            flash('Неверный логин/email или пароль')
+
     return render_template('login.html')
+
+@app.route('/register', methods=['POST'])
+def register():
+    username = request.form['username']
+    email = request.form['email']
+    phone = request.form['phone']
+    password = request.form['password']
+
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO users (username, email, phone, password) VALUES (?, ?, ?, ?)', 
+                       (username, email, phone, password))
+        conn.commit()
+        conn.close()
+        session['username'] = username
+        return redirect(url_for('home'))
+    except sqlite3.IntegrityError:
+        flash('Пользователь с таким логином или Email уже существует!')
+        return redirect(url_for('login_page'))
 
 @app.route('/logout')
 def logout():
-    session.pop('user', None)
-    return redirect(url_for('login'))
-
-@app.route('/add_friend', methods=['POST'])
-def add_friend():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    friend_name = request.form['friend_name'].strip()
-    if friend_name in users and friend_name != session['user']:
-        if friend_name not in friends[session['user']]:
-            friends[session['user']].append(friend_name)
-    return redirect(url_for('home'))
-
-@app.route('/send_video', methods=['POST'])
-def send_video():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-    receiver = request.form['receiver']
-    file = request.files['video']
-    if file and receiver in friends[session['user']]:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        messages.append({'sender': session['user'], 'receiver': receiver, 'filename': filename})
-    return redirect(url_for('home'))
-
-@app.route('/uploads/<filename>')
-def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    session.pop('username', None)
+    return redirect(url_for('login_page'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True)
