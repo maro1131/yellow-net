@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'yellownet_super_secret_key'
 
-# Папка для загрузки видео
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv', 'webm'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -16,7 +15,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    # Таблица пользователей
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,7 +24,6 @@ def init_db():
             password TEXT NOT NULL
         )
     ''')
-    # Таблица друзей
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS friends (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +32,6 @@ def init_db():
             FOREIGN KEY(user_id) REFERENCES users(id)
         )
     ''')
-    # Таблица видеороликов
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS videos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +41,6 @@ def init_db():
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    # Таблица уведомлений
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,20 +111,22 @@ def dashboard():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # Получаем ID текущего пользователя
     cursor.execute("SELECT id, email, phone FROM users WHERE username = ?", (username,))
     user_info = cursor.fetchone()
+    
+    if not user_info:
+        session.pop('user', None)
+        conn.close()
+        return redirect(url_for('login'))
+
     user_id = user_info[0]
 
-    # Получаем список друзей
     cursor.execute("SELECT friend_username FROM friends WHERE user_id = ?", (user_id,))
     friends = [row[0] for row in cursor.fetchall()]
 
-    # Получаем входящие видео
     cursor.execute("SELECT filename, sender, timestamp FROM videos WHERE receiver = ? ORDER BY id DESC", (username,))
     inbox_videos = cursor.fetchall()
 
-    # Получаем уведомления
     cursor.execute("SELECT message, timestamp FROM notifications WHERE user = ? ORDER BY id DESC", (username,))
     notifications = cursor.fetchall()
 
@@ -157,7 +154,6 @@ def add_friend():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
-    # Проверяем, существует ли такой пользователь
     cursor.execute("SELECT id FROM users WHERE username = ?", (friend_name,))
     target_user = cursor.fetchone()
 
@@ -165,7 +161,6 @@ def add_friend():
         cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
         my_id = cursor.fetchone()[0]
 
-        # Проверяем, не добавлен ли уже
         cursor.execute("SELECT * FROM friends WHERE user_id = ? AND friend_username = ?", (my_id, friend_name))
         exists = cursor.fetchone()
 
@@ -194,7 +189,6 @@ def upload_video():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # Добавляем уникальность имени файла
         save_filename = f"{sender}_{filename}"
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], save_filename))
 
