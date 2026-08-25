@@ -1,62 +1,226 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YellowNet — Вход и Регистрация</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #09090b; margin: 0;">
+    <title>YellowNet — Платформа нового поколения</title>
+    <!-- Подключаем шрифт Inter для премиального вида -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
 
-    <div class="card" style="width: 100%; max-width: 400px; padding: 30px; background: #121214; border: 1px solid #27272a; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+        body {
+            background-color: #09090b;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(250, 204, 21, 0.05) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(39, 39, 42, 0.4) 0px, transparent 50%);
+            color: #f4f4f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: rgba(18, 18, 20, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            background: #facc15;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #facc15;
+        }
+
+        .brand-subtitle {
+            color: #a1a1aa;
+            font-size: 14px;
+            margin-top: 6px;
+            font-weight: 400;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(24, 24, 27, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-field::placeholder {
+            color: #71717a;
+        }
+
+        .input-field:focus {
+            border-color: #facc15;
+            background: rgba(24, 24, 27, 1);
+            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #facc15;
+            color: #000000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+            box-shadow: 0 4px 14px rgba(250, 204, 21, 0.3);
+        }
+
+        .btn-submit:hover {
+            background: #eab308;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(250, 204, 21, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .switch-wrapper {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .switch-link {
+            color: #a1a1aa;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .switch-link:hover {
+            color: #facc15;
+            text-decoration: underline;
+        }
+
+        /* Плавное переключение форм */
+        .form-section {
+            display: none;
+            animation: fadeInOpacity 0.3s ease-in-out;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInOpacity {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
         
-        <div style="text-align: center; margin-bottom: 24px;">
-            <h2 style="color: #fff; margin-bottom: 5px;">YellowNet <span style="color: #facc15;">●</span></h2>
-            <p id="formSubtitle" style="color: #a1a1aa; font-size: 14px;">Вход в аккаунт</p>
+        <div class="brand-header">
+            <div class="brand-logo">YellowNet<span class="brand-dot"></span></div>
+            <div class="brand-subtitle" id="formSubtitle">Войдите в свою учетную запись</div>
         </div>
 
         {% if error %}
-            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #ef4444; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px; text-align: center;">
+            <div class="alert-error">
                 {{ error }}
             </div>
         {% endif %}
 
         <!-- ФОРМА ВХОДА -->
-        <form id="loginForm" action="/login" method="POST">
-            <div style="margin-bottom: 15px;">
-                <input type="text" name="username" class="input-field" placeholder="Логин" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+        <form id="loginForm" class="form-section active" action="/login" method="POST">
+            <div class="input-group">
+                <input type="text" name="username" class="input-field" placeholder="Имя пользователя или логин" required autocomplete="username">
             </div>
             
-            <div style="margin-bottom: 20px;">
-                <input type="password" name="password" class="input-field" placeholder="Пароль" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            <div class="input-group">
+                <input type="password" name="password" class="input-field" placeholder="Пароль" required autocomplete="current-password">
             </div>
 
-            <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px; background: #facc15; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000;">Войти</button>
+            <button type="submit" class="btn-submit">Войти в YellowNet</button>
         </form>
 
-        <!-- ФОРМА РЕГИСТРАЦИИ (скрыта по умолчанию) -->
-        <form id="registerForm" action="/register" method="POST" style="display: none;">
-            <div style="margin-bottom: 12px;">
-                <input type="text" name="username" class="input-field" placeholder="Придумайте логин" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+        <!-- ФОРМА РЕГИСТРАЦИИ -->
+        <form id="registerForm" class="form-section" action="/register" method="POST">
+            <div class="input-group">
+                <input type="text" name="username" class="input-field" placeholder="Придумайте уникальный логин" required>
             </div>
 
-            <div style="margin-bottom: 12px;">
-                <input type="email" name="email" class="input-field" placeholder="Ваш Email" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            <div class="input-group">
+                <input type="email" name="email" class="input-field" placeholder="Электронная почта" required>
             </div>
 
-            <div style="margin-bottom: 12px;">
-                <input type="text" name="phone" class="input-field" placeholder="Номер телефона" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            <div class="input-group">
+                <input type="text" name="phone" class="input-field" placeholder="Номер телефона" required>
             </div>
             
-            <div style="margin-bottom: 20px;">
-                <input type="password" name="password" class="input-field" placeholder="Придумайте пароль" required style="width: 100%; padding: 12px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; color: #fff; box-sizing: border-box;">
+            <div class="input-group">
+                <input type="password" name="password" class="input-field" placeholder="Надежный пароль" required>
             </div>
 
-            <button type="submit" class="btn-yellow" style="width: 100%; padding: 12px; background: #facc15; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: #000;">Зарегистрироваться</button>
+            <button type="submit" class="btn-submit">Создать аккаунт</button>
         </form>
 
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="#" onclick="toggleAuth(event)" id="switchText" style="color: #a1a1aa; font-size: 13px; text-decoration: none;">Нет аккаунта? Зарегистрироваться</a>
+        <div class="switch-wrapper">
+            <a href="#" onclick="toggleAuth(event)" id="switchText" class="switch-link">Нет аккаунта? Зарегистрироваться</a>
         </div>
 
     </div>
@@ -72,14 +236,14 @@
             const switchText = document.getElementById('switchText');
 
             if (isLogin) {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                subtitle.innerText = 'Вход в аккаунт';
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                subtitle.innerText = 'Войдите в свою учетную запись';
                 switchText.innerText = 'Нет аккаунта? Зарегистрироваться';
             } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                subtitle.innerText = 'Регистрация в YellowNet';
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                subtitle.innerText = 'Создайте профиль в YellowNet';
                 switchText.innerText = 'Уже есть аккаунт? Войти';
             }
         }
