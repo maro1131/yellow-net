@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'yellownet_super_secret_key'
 
-# Настройки для сохранения сессии, чтобы не приходилось логиниться заново
+# Настройки для сохранения сессии на 31 день
 app.permanent_session_lifetime = timedelta(days=31)
 
 @app.before_request
@@ -74,29 +74,42 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username').strip()
+        password = request.form.get('password').strip()
 
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+        
+        # Проверяем, есть ли пользователь в базе
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
-        conn.close()
 
         if user:
+            # Если пользователь есть, проверяем пароль (5-й элемент в таблице — пароль)
+            if user[4] == password:
+                session['user'] = username
+                conn.close()
+                return redirect(url_for('dashboard'))
+            else:
+                conn.close()
+                return render_template('login.html', error="Неверный пароль!")
+        else:
+            # ЕСЛИ БАЗА СТЕРЛАСЬ ИЛИ НЕТ АККАУНТА — АВТОМАТИЧЕСКИ СОЗДАЕМ ЕГО
+            cursor.execute("INSERT INTO users (username, email, phone, password) VALUES (?, ?, ?, ?)",
+                           (username, "auto@yellownet.com", "88005553535", password))
+            conn.commit()
+            conn.close()
             session['user'] = username
             return redirect(url_for('dashboard'))
-        else:
-            return render_template('login.html', error="Неверный логин или пароль")
 
     return render_template('login.html')
 
 @app.route('/register', methods=['POST'])
 def register():
-    username = request.form.get('username')
-    email = request.form.get('email')
-    phone = request.form.get('phone')
-    password = request.form.get('password')
+    username = request.form.get('username').strip()
+    email = request.form.get('email').strip()
+    phone = request.form.get('phone').strip()
+    password = request.form.get('password').strip()
 
     try:
         conn = sqlite3.connect('database.db')
