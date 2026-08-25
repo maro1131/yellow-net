@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Вход | YellowNet</title>
+    <style>
+        body { background-color: #121212; color: #f1c40f; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 12px; border: 2px solid #f1c40f; width: 300px; text-align: center; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #333; background: #2a2a2a; color: #fff; border-radius: 6px; }
+        button { background: #f1c40f; color: #121212; padding: 10px 20px; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; width: 100%; }
+        a { color: #f1c40f; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Авторизация</h2>
+        <form action="/login" method="POST">
+            <input type="text" name="username" placeholder="Ваш никнейм" required><br>
+            <input type="password" name="password" placeholder="Ваш пароль" required><br>
+            <button type="submit">Войти</button>
+        </form>
+        <p><a href="/register">Нет аккаунта? Зарегистрироваться</a></p>
+    </div>
+</body>
+</html>
