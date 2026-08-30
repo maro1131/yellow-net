@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>YellowNet — Вход</title>
+    <title>YellowNet — Доступ в систему</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -10,24 +10,28 @@
         <div class="auth-card">
             <div class="auth-logo">YellowNet<span>●</span></div>
             {% if error %}
-                <p style="color: #ef4444; margin-bottom: 15px; font-size: 14px;">{{ error }}</p>
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                    {{ error }}
+                </div>
             {% endif %}
             
             <form id="loginForm" action="/login" method="POST">
-                <input type="text" name="username" class="input-field" placeholder="Логин" required>
-                <input type="password" name="password" class="input-field" placeholder="Пароль" required>
-                <button type="submit" class="btn-primary">Войти</button>
+                <input type="text" name="username" class="input-field" placeholder="Уникальный логин" required>
+                <input type="password" name="password" class="input-field" placeholder="Ваш пароль" required>
+                <button type="submit" class="btn-primary">Войти в сеть</button>
             </form>
             
             <form id="registerForm" action="/register" method="POST" style="display: none;">
-                <input type="text" name="username" class="input-field" placeholder="Логин" required>
-                <input type="email" name="email" class="input-field" placeholder="Email" required>
-                <input type="text" name="phone" class="input-field" placeholder="Телефон" required>
-                <input type="password" name="password" class="input-field" placeholder="Пароль" required>
-                <button type="submit" class="btn-primary">Создать аккаунт</button>
+                <input type="text" name="username" class="input-field" placeholder="Придумайте логин" required>
+                <input type="email" name="email" class="input-field" placeholder="Email адрес" required>
+                <input type="text" name="phone" class="input-field" placeholder="Номер телефона" required>
+                <input type="password" name="password" class="input-field" placeholder="Надежный пароль" required>
+                <button type="submit" class="btn-primary">Присоединиться</button>
             </form>
 
-            <a href="#" onclick="toggleAuth(event)" style="color: #a1a1aa; font-size: 13px; display: block; margin-top: 20px; text-decoration: none;">Нет аккаунта? Создать</a>
+            <a href="#" onclick="toggleAuth(event)" style="color: #a1a1aa; font-size: 13px; display: block; margin-top: 25px; text-decoration: none; transition: 0.2s;">
+                <span id="toggleText">Нет аккаунта? Зарегистрироваться</span>
+            </a>
         </div>
     </div>
 
@@ -38,7 +42,7 @@
             isLogin = !isLogin;
             document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
             document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
-            e.target.innerText = isLogin ? 'Нет аккаунта? Создать' : 'Уже есть аккаунт? Войти';
+            document.getElementById('toggleText').innerText = isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
         }
     </script>
 </body>
