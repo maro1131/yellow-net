@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'yellownet_super_secret_pro_key'
+app.secret_key = 'yellownet_ultimate_pro_key'
 app.permanent_session_lifetime = timedelta(days=31)
 
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
@@ -24,7 +24,6 @@ def make_session_permanent():
 def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    # Обновленная таблица пользователей (добавлено bio и avatar)
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
                         id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, 
                         email TEXT NOT NULL, phone TEXT NOT NULL, password TEXT NOT NULL,
@@ -32,13 +31,16 @@ def init_db():
     cursor.execute('''CREATE TABLE IF NOT EXISTS friends (
                         id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, friend_username TEXT,
                         FOREIGN KEY(user_id) REFERENCES users(id))''')
-    # В видео добавлены лайки
     cursor.execute('''CREATE TABLE IF NOT EXISTS videos (
                         id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, 
-                        filename TEXT, likes INTEGER DEFAULT 0, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+                        filename TEXT, likes INTEGER DEFAULT 0, is_global INTEGER DEFAULT 0, 
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS messages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, 
+                        text TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS notifications (
                         id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT, message TEXT, 
-                        is_read INTEGER DEFAULT 0, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
     conn.commit()
     conn.close()
 
@@ -61,7 +63,6 @@ def login():
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
-        
         if user:
             if user[4] == password:
                 session['user'] = username
@@ -109,13 +110,13 @@ def dashboard():
     if not user_info:
         session.pop('user', None)
         return redirect(url_for('login'))
-        
     user_id, bio, avatar = user_info
     
     cursor.execute("SELECT friend_username FROM friends WHERE user_id = ?", (user_id,))
     friends = [row[0] for row in cursor.fetchall()]
 
-    cursor.execute("SELECT id, filename, sender, likes, timestamp FROM videos WHERE receiver = ? ORDER BY id DESC", (username,))
+    # Личные и глобальные видео
+    cursor.execute("SELECT id, filename, sender, likes, timestamp FROM videos WHERE receiver = ? OR is_global = 1 ORDER BY id DESC", (username,))
     videos = cursor.fetchall()
 
     cursor.execute("SELECT message, timestamp FROM notifications WHERE user = ? ORDER BY id DESC LIMIT 10", (username,))
@@ -126,6 +127,30 @@ def dashboard():
     
     return render_template('dashboard.html', user=username, bio=bio, avatar=avatar, 
                            friends=friends, videos=videos, notifications=notifications, stats=stats)
+
+@app.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user' not in session: return redirect(url_for('login'))
+    username = session['user']
+    bio = request.form.get('bio')
+    file = request.files.get('avatar_file')
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    
+    if bio:
+        cursor.execute("UPDATE users SET bio = ? WHERE username = ?", (bio, username))
+        
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        avatar_name = f"{username}_{filename}"
+        file.save(os.path.join(app.config['AVATAR_FOLDER'], avatar_name))
+        cursor.execute("UPDATE users SET avatar = ? WHERE username = ?", (avatar_name, username))
+        
+    conn.commit()
+    conn.close()
+    flash("Профиль успешно обновлен!", "success")
+    return redirect(url_for('dashboard'))
 
 @app.route('/add_friend', methods=['POST'])
 def add_friend():
@@ -139,7 +164,6 @@ def add_friend():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM users WHERE username = ?", (friend_name,))
-    
     if cursor.fetchone():
         cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
         my_id = cursor.fetchone()[0]
@@ -147,11 +171,11 @@ def add_friend():
         if not cursor.fetchone():
             cursor.execute("INSERT INTO friends (user_id, friend_username) VALUES (?, ?)", (my_id, friend_name))
             cursor.execute("INSERT INTO notifications (user, message) VALUES (?, ?)", 
-                           (friend_name, f"🚀 @{username} теперь ваш друг!"))
+                           (friend_name, f"🚀 @{username} добавил вас в друзья!"))
             conn.commit()
             flash(f"@{friend_name} добавлен в друзья!", "success")
         else:
-            flash("Пользователь уже в друзьях", "info")
+            flash("Уже в друзьях", "info")
     else:
         flash("Пользователь не найден", "error")
     conn.close()
@@ -160,7 +184,8 @@ def add_friend():
 @app.route('/upload_video', methods=['POST'])
 def upload_video():
     if 'user' not in session: return redirect(url_for('login'))
-    receiver = request.form.get('receiver')
+    receiver = request.form.get('receiver', '').strip()
+    is_global = 1 if request.form.get('is_global') == 'on' else 0
     file = request.files.get('video_file')
     sender = session['user']
 
@@ -171,14 +196,47 @@ def upload_video():
 
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO videos (sender, receiver, filename) VALUES (?, ?, ?)", (sender, receiver, save_filename))
-        cursor.execute("INSERT INTO notifications (user, message) VALUES (?, ?)", (receiver, f"🎬 Новое видео от @{sender}!"))
+        cursor.execute("INSERT INTO videos (sender, receiver, filename, is_global) VALUES (?, ?, ?, ?)", 
+                       (sender, receiver if not is_global else "ALL", save_filename, is_global))
+        if not is_global and receiver:
+            cursor.execute("INSERT INTO notifications (user, message) VALUES (?, ?)", (receiver, f"🎬 Новое видео от @{sender}!"))
         conn.commit()
         conn.close()
-        flash("Видео успешно отправлено!", "success")
+        flash("Видео опубликовано!", "success")
     else:
-        flash("Ошибка формата файла", "error")
+        flash("Ошибка загрузки файла", "error")
     return redirect(url_for('dashboard'))
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    if 'user' not in session: return jsonify({"status": "error"})
+    data = request.json
+    receiver = data.get('receiver')
+    text = data.get('text')
+    sender = session['user']
+    
+    if not text or not receiver: return jsonify({"status": "error"})
+    
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO messages (sender, receiver, text) VALUES (?, ?, ?)", (sender, receiver, text))
+    cursor.execute("INSERT INTO notifications (user, message) VALUES (?, ?)", (receiver, f"💬 Сообщение от @{sender}"))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success"})
+
+@app.route('/get_messages/<friend>', methods=['GET'])
+def get_messages(friend):
+    if 'user' not in session: return jsonify([])
+    username = session['user']
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("""SELECT sender, text, timestamp FROM messages 
+                      WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) 
+                      ORDER BY id ASC""", (username, friend, friend, username))
+    msgs = [{"sender": row[0], "text": row[1], "time": row[2][11:16]} for row in cursor.fetchall()]
+    conn.close()
+    return jsonify(msgs)
 
 @app.route('/like_video/<int:video_id>', methods=['POST'])
 def like_video(video_id):
