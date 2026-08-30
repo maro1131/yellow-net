@@ -2,89 +2,104 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>YellowNet — Лента</title>
+    <title>YellowNet — Соцсеть</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="dashboard-layout">
-        <!-- Боковая панель (Профиль) -->
         <aside class="sidebar">
-            <div class="auth-logo" style="margin-bottom: 30px; font-size: 24px;">YellowNet<span>●</span></div>
+            <div class="auth-logo" style="margin-bottom: 25px; font-size: 22px;">YellowNet<span>●</span></div>
             
             <div class="profile-widget">
-                <div class="avatar-circle">👤</div>
-                <h2 style="font-size: 18px; margin-bottom: 5px;">@{{ user }}</h2>
-                <p style="color: #a1a1aa; font-size: 13px;">{{ bio }}</p>
+                <img src="{{ url_for('static', filename='avatars/' + avatar) }}" class="avatar-img" alt="Avatar">
+                <h2 style="font-size: 16px; margin-bottom: 4px;">@{{ user }}</h2>
+                <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 12px;">{{ bio }}</p>
                 <div class="stats-row">
                     <div class="stat-item"><span>Друзей</span><strong>{{ stats.friends }}</strong></div>
                     <div class="stat-item"><span>Видео</span><strong>{{ stats.videos }}</strong></div>
                 </div>
             </div>
 
-            <nav style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="#" style="color: #fff; text-decoration: none; padding: 10px; background: #18181b; border-radius: 8px;">🏠 Моя лента</a>
-                <a href="/logout" style="color: #ef4444; text-decoration: none; padding: 10px; border-radius: 8px; transition: 0.2s;">🚪 Выйти из аккаунта</a>
+            <nav style="display: flex; flex-direction: column; gap: 8px;">
+                <a href="/logout" style="color: #ef4444; text-decoration: none; padding: 10px; border-radius: 8px; font-size: 13px;">🚪 Выйти</a>
             </nav>
         </aside>
 
-        <!-- Основной контент -->
         <main class="main-content">
             <header class="header-top">
-                <h1 style="font-size: 24px; font-weight: 700;">Лента событий</h1>
+                <h1 style="font-size: 22px; font-weight: 700;">Главная лента</h1>
             </header>
 
             <div class="grid-layout">
-                <!-- Левая колонка: Действия -->
                 <div>
+                    <!-- Настройки профиля -->
                     <div class="glass-card">
-                        <h3>🎥 Загрузить медиа</h3>
-                        <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                            <input type="text" name="receiver" class="input-field" placeholder="Логин получателя" required>
-                            <input type="file" name="video_file" class="input-field" accept="video/*" required style="padding: 10px; background: #121214;">
-                            <button type="submit" class="btn-primary">Отправить видео</button>
+                        <h3>⚙️ Настройки профиля</h3>
+                        <form action="/update_profile" method="POST" enctype="multipart/form-data">
+                            <input type="text" name="bio" class="input-field" placeholder="Ваш статус (био)" value="{{ bio }}">
+                            <input type="file" name="avatar_file" class="input-field" accept="image/*" style="padding: 8px; background: #121214;">
+                            <button type="submit" class="btn-primary" style="font-size: 13px; padding: 10px;">Сохранить профиль</button>
                         </form>
                     </div>
 
                     <div class="glass-card">
-                        <h3>🤝 Управление связями</h3>
-                        <form action="/add_friend" method="POST" style="display: flex; gap: 10px;">
-                            <input type="text" name="friend_name" class="input-field" placeholder="Найти пользователя" required style="margin: 0;">
-                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 20px;">Добавить</button>
-                        </form>
-                        <div style="margin-top: 15px; background: #121214; padding: 15px; border-radius: 12px; border: 1px solid #27272a;">
-                            <h4 style="font-size: 14px; color: #a1a1aa; margin-bottom: 10px;">Список друзей:</h4>
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                {% for friend in friends %}
-                                    <span style="background: #27272a; padding: 5px 12px; border-radius: 20px; font-size: 13px;">@{{ friend }}</span>
-                                {% else %}
-                                    <span style="color: #71717a; font-size: 13px;">Пока нет друзей</span>
-                                {% endfor %}
+                        <h3>🎥 Загрузить видео</h3>
+                        <form action="/upload_video" method="POST" enctype="multipart/form-data">
+                            <input type="text" name="receiver" class="input-field" placeholder="Получатель (или оставьте пустым для общего мира)">
+                            <div style="margin-bottom: 12px; font-size: 13px; color: #a1a1aa; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="is_global" id="is_global"> <label for="is_global">Опубликовать для всех в общую ленту</label>
                             </div>
+                            <input type="file" name="video_file" class="input-field" accept="video/*" required style="padding: 8px; background: #121214;">
+                            <button type="submit" class="btn-primary" style="font-size: 13px; padding: 10px;">Загрузить</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-card">
+                        <h3>🤝 Друзья</h3>
+                        <form action="/add_friend" method="POST" style="display: flex; gap: 8px;">
+                            <input type="text" name="friend_name" class="input-field" placeholder="Логин друга" required style="margin: 0;">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 15px; font-size: 13px;">+</button>
+                        </form>
+                        <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
+                            {% for friend in friends %}
+                                <span onclick="openChat('{{ friend }}')" style="background: #27272a; padding: 4px 10px; border-radius: 15px; font-size: 12px; cursor: pointer; color: #facc15;">@{{ friend }} 💬</span>
+                            {% else %}
+                                <span style="color: #71717a; font-size: 12px;">Нет друзей</span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <!-- Правая колонка: Лента -->
                 <div>
-                    <div class="glass-card" style="padding: 0; background: transparent; border: none; box-shadow: none;">
-                        <h3 style="margin-bottom: 15px;">🎬 Входящие видео</h3>
+                    <!-- Чат с другом -->
+                    <div class="glass-card" id="chatCard" style="display: none;">
+                        <h3>💬 Чат с <span id="chatFriendName" style="color: #facc15;"></span></h3>
+                        <div class="chat-box">
+                            <div class="chat-messages" id="chatMessages"></div>
+                            <div style="display: flex; gap: 6px;">
+                                <input type="text" id="chatInput" class="input-field" placeholder="Сообщение..." style="margin: 0; font-size: 13px;">
+                                <button onclick="sendMessage()" class="btn-primary" style="width: auto; padding: 0 15px;">➤</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card" style="padding: 0; background: transparent; border: none;">
+                        <h3 style="margin-bottom: 12px;">🌍 Лента медиа</h3>
                         {% for video in videos %}
                             <article class="video-post">
                                 <div class="video-header">
                                     <span class="video-user">@{{ video[2] }}</span>
-                                    <span style="color: #71717a; font-size: 12px;">{{ video[4][:16] }}</span>
+                                    <span style="color: #71717a; font-size: 11px;">{{ video[4][:16] }}</span>
                                 </div>
                                 <video controls preload="metadata">
                                     <source src="{{ url_for('static', filename='uploads/' + video[1]) }}" type="video/mp4">
                                 </video>
-                                <div class="video-actions">
-                                    <button class="action-btn" onclick="likeVideo({{ video[0] }}, this)">
-                                        ❤️ <span class="likes-count">{{ video[3] }}</span>
-                                    </button>
-                                </div>
+                                <button class="action-btn" onclick="likeVideo({{ video[0] }}, this)">
+                                    ❤️ <span class="likes-count">{{ video[3] }}</span>
+                                </button>
                             </article>
                         {% else %}
-                            <div class="glass-card"><p style="color: #71717a; text-align: center;">Лента пуста.</p></div>
+                            <p style="color: #71717a; font-size: 13px; text-align: center;">Лента пуста</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -92,41 +107,68 @@
         </main>
     </div>
 
-    <!-- Всплывающие уведомления (Тосты) -->
     <div class="toast-container" id="toastContainer">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="toast" style="border-left-color: {% if category == 'error' %}#ef4444{% else %}#facc15{% endif %};">
-                        {{ message }}
-                    </div>
+                    <div class="toast">{{ message }}</div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
 
     <script>
-        // Скрипт для интерактивных лайков без перезагрузки страницы!
-        function likeVideo(videoId, btnElement) {
-            fetch(`/like_video/${videoId}`, { method: 'POST' })
-            .then(response => response.json())
+        let currentFriend = '';
+
+        function openChat(friend) {
+            currentFriend = friend;
+            document.getElementById('chatCard').style.display = 'block';
+            document.getElementById('chatFriendName').innerText = '@' + friend;
+            loadMessages();
+        }
+
+        function loadMessages() {
+            if (!currentFriend) return;
+            fetch(`/get_messages/${currentFriend}`)
+            .then(res => res.json())
             .then(data => {
-                if (data.status === 'success') {
-                    btnElement.querySelector('.likes-count').innerText = data.likes;
-                    btnElement.style.color = '#ef4444'; // Красим сердечко
-                }
+                let box = document.getElementById('chatMessages');
+                box.innerHTML = '';
+                data.forEach(m => {
+                    let isMe = m.sender === '{{ user }}';
+                    box.innerHTML += `<div class="chat-msg ${isMe ? 'me' : ''}"><b>${m.sender}:</b> ${m.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
             });
         }
 
-        // Автоматически скрываем тосты через 4 секунды
-        setTimeout(() => {
-            const toasts = document.querySelectorAll('.toast');
-            toasts.forEach(toast => {
-                toast.style.opacity = '0';
-                toast.style.transition = '0.5s';
-                setTimeout(() => toast.remove(), 500);
+        function sendMessage() {
+            let input = document.getElementById('chatInput');
+            let text = input.value.trim();
+            if (!text || !currentFriend) return;
+
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({receiver: currentFriend, text: text})
+            }).then(() => {
+                input.value = '';
+                loadMessages();
             });
-        }, 4000);
+        }
+
+        setInterval(() => { if(currentFriend) loadMessages(); }, 3000);
+
+        function likeVideo(videoId, btnElement) {
+            fetch(`/like_video/${videoId}`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btnElement.querySelector('.likes-count').innerText = data.likes;
+                    btnElement.style.color = '#ef4444';
+                }
+            });
+        }
     </script>
 </body>
 </html>
