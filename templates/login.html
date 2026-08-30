@@ -2,227 +2,33 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YellowNet — Платформа нового поколения</title>
-    <!-- Подключаем шрифт Inter для премиального вида -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background-color: #09090b;
-            background-image: 
-                radial-gradient(at 10% 20%, rgba(250, 204, 21, 0.05) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(39, 39, 42, 0.4) 0px, transparent 50%);
-            color: #f4f4f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 420px;
-            padding: 40px;
-            background: rgba(18, 18, 20, 0.85);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .brand-header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .brand-logo {
-            font-size: 28px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .brand-dot {
-            width: 8px;
-            height: 8px;
-            background: #facc15;
-            border-radius: 50%;
-            box-shadow: 0 0 12px #facc15;
-        }
-
-        .brand-subtitle {
-            color: #a1a1aa;
-            font-size: 14px;
-            margin-top: 6px;
-            font-weight: 400;
-        }
-
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(24, 24, 27, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        .input-field::placeholder {
-            color: #71717a;
-        }
-
-        .input-field:focus {
-            border-color: #facc15;
-            background: rgba(24, 24, 27, 1);
-            box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: #facc15;
-            color: #000000;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 8px;
-            box-shadow: 0 4px 14px rgba(250, 204, 21, 0.3);
-        }
-
-        .btn-submit:hover {
-            background: #eab308;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(250, 204, 21, 0.4);
-        }
-
-        .btn-submit:active {
-            transform: translateY(0);
-        }
-
-        .switch-wrapper {
-            text-align: center;
-            margin-top: 24px;
-        }
-
-        .switch-link {
-            color: #a1a1aa;
-            font-size: 13px;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .switch-link:hover {
-            color: #facc15;
-            text-decoration: underline;
-        }
-
-        /* Плавное переключение форм */
-        .form-section {
-            display: none;
-            animation: fadeInOpacity 0.3s ease-in-out;
-        }
-
-        .form-section.active {
-            display: block;
-        }
-
-        @keyframes fadeInOpacity {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
+    <title>YellowNet — Вход</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-    <div class="auth-container">
-        
-        <div class="brand-header">
-            <div class="brand-logo">YellowNet<span class="brand-dot"></span></div>
-            <div class="brand-subtitle" id="formSubtitle">Войдите в свою учетную запись</div>
-        </div>
-
-        {% if error %}
-            <div class="alert-error">
-                {{ error }}
-            </div>
-        {% endif %}
-
-        <!-- ФОРМА ВХОДА -->
-        <form id="loginForm" class="form-section active" action="/login" method="POST">
-            <div class="input-group">
-                <input type="text" name="username" class="input-field" placeholder="Имя пользователя или логин" required autocomplete="username">
-            </div>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-logo">YellowNet<span>●</span></div>
+            {% if error %}
+                <p style="color: #ef4444; margin-bottom: 15px; font-size: 14px;">{{ error }}</p>
+            {% endif %}
             
-            <div class="input-group">
-                <input type="password" name="password" class="input-field" placeholder="Пароль" required autocomplete="current-password">
-            </div>
-
-            <button type="submit" class="btn-submit">Войти в YellowNet</button>
-        </form>
-
-        <!-- ФОРМА РЕГИСТРАЦИИ -->
-        <form id="registerForm" class="form-section" action="/register" method="POST">
-            <div class="input-group">
-                <input type="text" name="username" class="input-field" placeholder="Придумайте уникальный логин" required>
-            </div>
-
-            <div class="input-group">
-                <input type="email" name="email" class="input-field" placeholder="Электронная почта" required>
-            </div>
-
-            <div class="input-group">
-                <input type="text" name="phone" class="input-field" placeholder="Номер телефона" required>
-            </div>
+            <form id="loginForm" action="/login" method="POST">
+                <input type="text" name="username" class="input-field" placeholder="Логин" required>
+                <input type="password" name="password" class="input-field" placeholder="Пароль" required>
+                <button type="submit" class="btn-primary">Войти</button>
+            </form>
             
-            <div class="input-group">
-                <input type="password" name="password" class="input-field" placeholder="Надежный пароль" required>
-            </div>
+            <form id="registerForm" action="/register" method="POST" style="display: none;">
+                <input type="text" name="username" class="input-field" placeholder="Логин" required>
+                <input type="email" name="email" class="input-field" placeholder="Email" required>
+                <input type="text" name="phone" class="input-field" placeholder="Телефон" required>
+                <input type="password" name="password" class="input-field" placeholder="Пароль" required>
+                <button type="submit" class="btn-primary">Создать аккаунт</button>
+            </form>
 
-            <button type="submit" class="btn-submit">Создать аккаунт</button>
-        </form>
-
-        <div class="switch-wrapper">
-            <a href="#" onclick="toggleAuth(event)" id="switchText" class="switch-link">Нет аккаунта? Зарегистрироваться</a>
+            <a href="#" onclick="toggleAuth(event)" style="color: #a1a1aa; font-size: 13px; display: block; margin-top: 20px; text-decoration: none;">Нет аккаунта? Создать</a>
         </div>
-
     </div>
 
     <script>
@@ -230,22 +36,9 @@
         function toggleAuth(e) {
             e.preventDefault();
             isLogin = !isLogin;
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const subtitle = document.getElementById('formSubtitle');
-            const switchText = document.getElementById('switchText');
-
-            if (isLogin) {
-                loginForm.classList.add('active');
-                registerForm.classList.remove('active');
-                subtitle.innerText = 'Войдите в свою учетную запись';
-                switchText.innerText = 'Нет аккаунта? Зарегистрироваться';
-            } else {
-                loginForm.classList.remove('active');
-                registerForm.classList.add('active');
-                subtitle.innerText = 'Создайте профиль в YellowNet';
-                switchText.innerText = 'Уже есть аккаунт? Войти';
-            }
+            document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+            e.target.innerText = isLogin ? 'Нет аккаунта? Создать' : 'Уже есть аккаунт? Войти';
         }
     </script>
 </body>
