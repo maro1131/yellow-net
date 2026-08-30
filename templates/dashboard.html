@@ -2,258 +2,85 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YellowNet — Dashboard</title>
+    <title>YellowNet — Лента</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <div class="sidebar">
+        <div class="auth-logo" style="margin-bottom: 40px;">YellowNet<span>●</span></div>
+        <div style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">Мой профиль</div>
+        <div style="font-size: 18px; font-weight: bold; color: white;">@{{ user }}</div>
+    </div>
 
-    <!-- Боковая панель -->
-    <aside class="sidebar">
-        <div>
-            <div class="logo">
-                <span class="logo-dot"></span> YellowNet
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#" class="nav-link active" data-tab="tab-home">🏠 Главная</a></li>
-                <li><a href="#" class="nav-link" data-tab="tab-friends">👥 Друзья</a></li>
-                <li><a href="#" class="nav-link" data-tab="tab-inbox">📥 Входящие видео</a></li>
-                <li><a href="#" class="nav-link" data-tab="tab-send">📤 Отправить видео</a></li>
-                <li><a href="#" class="nav-link" data-tab="tab-notifications">🔔 Уведомления</a></li>
-                <li><a href="#" class="nav-link" data-tab="tab-settings">⚙️ Настройки</a></li>
-            </ul>
+    <div class="main-content">
+        <div class="header-top">
+            <h2>Добро пожаловать, {{ user }}! ✌️</h2>
+            <a href="/logout" class="logout-btn">Выйти</a>
         </div>
-        
-        <div class="sidebar-banner">
-            <h4>💛 Общайся. Делись. Вдохновляй.</h4>
-            <p>YellowNet — твоя сеть для общения и обмена видео.</p>
-        </div>
-    </aside>
 
-    <!-- Главный контент -->
-    <main class="main-container">
-        
-        <header class="top-header">
-            <div class="user-profile">
-                <div class="avatar">{{ user[0].upper() }}</div>
-                <span>{{ user }}</span>
-            </div>
-            <a href="/logout" class="btn-logout">Выйти</a>
-        </header>
-
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div style="background: #18181b; border: 1px solid #facc15; color: #facc15; padding: 12px; border-radius: 12px; margin-bottom: 20px;">
-              {% for message in messages %}
-                <p>{{ message }}</p>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
-        <!-- Вкладка: ГЛАВНАЯ -->
-        <section id="tab-home" class="tab-content active-tab">
-            <div class="welcome-card" style="display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
-                <div>
-                    <h1>Привет, {{ user }}! 👋</h1>
-                    <p style="max-width: 450px; margin-top: 8px;">Добро пожаловать в YellowNet — место, где люди общаются и делятся моментами.</p>
-                </div>
-                <div style="font-size: 40px;">💬👥✨</div>
-            </div>
-
-            <div class="grid-2">
-                <!-- Блок друзей -->
+        <div class="grid-container">
+            <!-- Левая колонка -->
+            <div>
                 <div class="card">
-                    <h3 class="card-title">🧡 Мои друзья</h3>
-                    <p class="card-subtitle">Добавляйте друзей и оставайтесь на связи!</p>
-                    <form action="/add_friend" method="POST" class="input-group" style="margin-bottom: 20px;">
-                        <input type="text" name="friend_name" class="input-field" placeholder="Никнейм друга" required>
-                        <button type="submit" class="btn-yellow">Добавить в друзья</button>
-                    </form>
-                    <p style="font-size: 13px; color: #a1a1aa; margin-bottom: 10px;">Список друзей</p>
-                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                        {% if friends %}
-                            {% for f in friends %}
-                                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                                    <div style="width: 45px; height: 45px; background: #27272a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #3f3f46;">{{ f[0].upper() }}</div>
-                                    <span style="font-size: 11px; color: #a1a1aa;">@{{ f }}</span>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p style="color: #71717a; font-size: 13px;">Список пока пуст</p>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Блок отправки видео (как на 2 фотке) -->
-                <div class="card">
-                    <h3 class="card-title">📤 Отправить видео другу</h3>
-                    <p class="card-subtitle">Поделитесь моментом — отправьте видео любому другу.</p>
+                    <h3>Отправить видео 🎥</h3>
                     <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                        <select name="receiver" class="input-field" style="margin-bottom: 15px; width: 100%;" required>
-                            <option value="" disabled selected>Выберите получателя...</option>
-                            {% for f in friends %}
-                                <option value="{{ f }}">{{ f }}</option>
-                            {% endfor %}
-                        </select>
-                        
-                        <input type="file" name="video_file" id="homeVideoInput" accept="video/*" required style="display: none;" onchange="document.getElementById('homeFileName').innerText = this.files[0].name">
-                        
-                        <div onclick="document.getElementById('homeVideoInput').click()" style="border: 2px dashed #3f3f46; border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: #09090b; margin-bottom: 15px; transition: 0.2s;">
-                            <div style="font-size: 24px; margin-bottom: 5px;">☁️</div>
-                            <span id="homeFileName" style="color: #a1a1aa; font-size: 13px;">Нажмите, чтобы выбрать видео<br>или перетащите файл сюда</span>
-                        </div>
-
-                        <button type="submit" class="btn-yellow" style="width: 100%;">Отправить видео</button>
+                        <input type="text" name="receiver" class="input-field" placeholder="Кому (логин друга)" required>
+                        <input type="file" name="video_file" class="input-field" accept="video/*" required style="padding: 9px;">
+                        <button type="submit" class="btn-primary">Отправить</button>
                     </form>
                 </div>
-            </div>
 
-            <!-- Входящие видео -->
-            <div class="card">
-                <h3 class="card-title">🎬 Входящие видео</h3>
-                <p class="card-subtitle">Ваши полученные видео от друзей</p>
-                <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
-                    {% if videos %}
-                        {% for v in videos %}
-                            <div class="video-card">
-                                <video controls style="width: 100%; height: 140px; object-fit: cover; border-radius: 10px 10px 0 0;">
-                                    <source src="{{ url_for('static', filename='uploads/' + v[0]) }}">
-                                </video>
-                                <div class="video-info">
-                                    <p class="video-author">От @{{ v[1] }}</p>
-                                    <p class="video-time">{{ v[2] }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p style="color: #a1a1aa; font-size: 14px;">Видео пока нет. Будьте первыми!</p>
-                    {% endif %}
+                <div class="card">
+                    <h3>Добавить друга 🤝</h3>
+                    <form action="/add_friend" method="POST" style="display: flex; gap: 10px;">
+                        <input type="text" name="friend_name" class="input-field" placeholder="Логин пользователя" required style="margin: 0;">
+                        <button type="submit" class="btn-primary" style="width: auto; padding: 0 20px;">+</button>
+                    </form>
                 </div>
-                <button onclick="document.querySelector('[data-tab=\'tab-inbox\']').click()" class="btn-yellow" style="background: transparent; border: 1px solid #facc15; color: #facc15; width: 100%;">Смотреть все входящие</button>
-            </div>
-        </section>
 
-        <!-- Вкладка: ДРУЗЬЯ -->
-        <section id="tab-friends" class="tab-content">
-            <div class="card">
-                <h3 class="card-title">👥 Все друзья</h3>
-                <p class="card-subtitle">Ваш полный список контактов</p>
-                {% if friends %}
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-                        {% for f in friends %}
-                            <li style="background: #09090b; padding: 14px; border-radius: 10px; border: 1px solid #27272a; display: flex; justify-content: space-between; align-items: center;">
-                                <span>👤 @{{ f }}</span>
-                                <span style="color: #22c55e; font-size: 12px;">● В сети</span>
-                            </li>
+                <div class="card">
+                    <h3>Мои друзья 👥</h3>
+                    <ul class="item-list">
+                        {% for friend in friends %}
+                            <li>@{{ friend }}</li>
+                        {% else %}
+                            <li style="color: #71717a;">Список друзей пока пуст</li>
                         {% endfor %}
                     </ul>
-                {% else %}
-                    <p style="color: #a1a1aa;">У вас пока нет друзей.</p>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- Вкладка: ВХОДЯЩИЕ ВИДЕО -->
-        <section id="tab-inbox" class="tab-content">
-            <div class="card">
-                <h3 class="card-title">📥 Все входящие видео</h3>
-                <p class="card-subtitle">Архив всех полученных медиафайлов</p>
-                <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
-                    {% if videos %}
-                        {% for v in videos %}
-                            <div class="video-card">
-                                <video controls style="width: 100%; height: 140px; object-fit: cover; border-radius: 10px 10px 0 0;">
-                                    <source src="{{ url_for('static', filename='uploads/' + v[0]) }}">
-                                </video>
-                                <div class="video-info">
-                                    <p class="video-author">От @{{ v[1] }}</p>
-                                    <p class="video-time">{{ v[2] }}</p>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p style="color: #a1a1aa;">Видео пока не поступали.</p>
-                    {% endif %}
                 </div>
             </div>
-        </section>
 
-        <!-- Вкладка: ОТПРАВИТЬ ВИДЕО (Отдельный раздел) -->
-        <section id="tab-send" class="tab-content">
-            <div class="card" style="max-width: 600px; margin: 0 auto;">
-                <h3 class="card-title">📤 Отправить видео</h3>
-                <p class="card-subtitle">Загрузите видеофайл для друга</p>
-                <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                    <select name="receiver" class="input-field" style="margin-bottom: 15px; width: 100%;" required>
-                        <option value="" disabled selected>Выберите друга...</option>
-                        {% for f in friends %}
-                            <option value="{{ f }}">{{ f }}</option>
-                        {% endfor %}
-                    </select>
-                    
-                    <input type="file" name="video_file" id="sendVideoInput" accept="video/*" required style="display: none;" onchange="document.getElementById('sendFileName').innerText = this.files[0].name">
-                    
-                    <div onclick="document.getElementById('sendVideoInput').click()" style="border: 2px dashed #3f3f46; border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: #09090b; margin-bottom: 15px; transition: 0.2s;">
-                        <div style="font-size: 24px; margin-bottom: 5px;">☁️</div>
-                        <span id="sendFileName" style="color: #a1a1aa; font-size: 13px;">Нажмите, чтобы выбрать видео<br>или перетащите файл сюда</span>
-                    </div>
-
-                    <button type="submit" class="btn-yellow" style="width: 100%;">Отправить файл</button>
-                </form>
-            </div>
-        </section>
-
-        <!-- Вкладка: УВЕДОМЛЕНИЯ -->
-        <section id="tab-notifications" class="tab-content">
-            <div class="card">
-                <h3 class="card-title">🔔 Уведомления</h3>
-                <p class="card-subtitle">История событий</p>
-                {% if notifications %}
-                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
-                        {% for n in notifications %}
-                            <li style="background: #09090b; padding: 12px; border-radius: 10px; border: 1px solid #27272a; display: flex; justify-content: space-between;">
-                                <span>{{ n[0] }}</span>
-                                <span style="color: #71717a; font-size: 12px;">{{ n[1] }}</span>
-                            </li>
+            <!-- Правая колонка -->
+            <div>
+                <div class="card">
+                    <h3>Уведомления 🔔</h3>
+                    <ul class="item-list">
+                        {% for note in notifications %}
+                            <li>{{ note[0] }} <span style="color: #71717a; font-size: 11px; float: right;">{{ note[1][:10] }}</span></li>
+                        {% else %}
+                            <li style="color: #71717a;">Новых уведомлений нет</li>
                         {% endfor %}
                     </ul>
-                {% else %}
-                    <p style="color: #a1a1aa;">Уведомлений пока нет.</p>
-                {% endif %}
-            </div>
-        </section>
+                </div>
 
-        <!-- Вкладка: НАСТРОЙКИ -->
-        <section id="tab-settings" class="tab-content">
-            <div class="card" style="max-width: 600px; margin: 0 auto;">
-                <h3 class="card-title">⚙️ Настройки</h3>
-                <p class="card-subtitle">Информация об учетной записи</p>
-                <div style="display: flex; flex-direction: column; gap: 12px; color: #a1a1aa;">
-                    <div><strong style="color: #fff;">Логин:</strong> {{ user }}</div>
-                    <div><strong style="color: #fff;">Email:</strong> {{ user_info[1] }}</div>
-                    <div><strong style="color: #fff;">Телефон:</strong> {{ user_info[2] }}</div>
+                <div class="card">
+                    <h3>Полученные видео 🎬</h3>
+                    {% for video in videos %}
+                        <div class="video-box">
+                            <div style="font-size: 14px; margin-bottom: 10px;">
+                                От: <b>@{{ video[1] }}</b> <span style="color: #71717a; font-size: 12px;">({{ video[2][:16] }})</span>
+                            </div>
+                            <video controls>
+                                <source src="{{ url_for('static', filename='uploads/' + video[0]) }}" type="video/mp4">
+                                Ваш браузер не поддерживает видео.
+                            </video>
+                        </div>
+                    {% else %}
+                        <p style="color: #71717a; font-size: 14px;">Вам пока не присылали видео.</p>
+                    {% endfor %}
                 </div>
             </div>
-        </section>
-
-    </main>
-
-    <script>
-        const navLinks = document.querySelectorAll('.nav-link');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                navLinks.forEach(l => l.classList.remove('active'));
-                tabContents.forEach(tab => tab.classList.remove('active-tab'));
-
-                link.classList.add('active');
-                const targetTab = link.getAttribute('data-tab');
-                document.getElementById(targetTab).classList.add('active-tab');
-            });
-        });
-    </script>
+        </div>
+    </div>
 </body>
 </html>
