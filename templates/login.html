@@ -2,31 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>YellowNet — Доступ в систему</title>
+    <title>YellowNet — Авторизация</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="auth-wrapper">
         <div class="auth-card">
             <div class="auth-logo">YellowNet<span>●</span></div>
+            
             {% if error %}
-                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
                     {{ error }}
                 </div>
             {% endif %}
             
             <form id="loginForm" action="/login" method="POST">
-                <input type="text" name="username" class="input-field" placeholder="Уникальный логин" required>
-                <input type="password" name="password" class="input-field" placeholder="Ваш пароль" required>
+                <input type="text" name="username" class="input-field" placeholder="Ваш логин" required autocomplete="off">
+                <input type="password" name="password" class="input-field" placeholder="Пароль" required>
                 <button type="submit" class="btn-primary">Войти в сеть</button>
             </form>
             
             <form id="registerForm" action="/register" method="POST" style="display: none;">
-                <input type="text" name="username" class="input-field" placeholder="Придумайте логин" required>
+                <input type="text" name="username" class="input-field" placeholder="Придумайте логин" required autocomplete="off">
                 <input type="email" name="email" class="input-field" placeholder="Email адрес" required>
                 <input type="text" name="phone" class="input-field" placeholder="Номер телефона" required>
-                <input type="password" name="password" class="input-field" placeholder="Надежный пароль" required>
-                <button type="submit" class="btn-primary">Присоединиться</button>
+                <input type="password" name="password" class="input-field" placeholder="Придумайте пароль" required>
+                <button type="submit" class="btn-primary">Зарегистрироваться</button>
             </form>
 
             <a href="#" onclick="toggleAuth(event)" style="color: #a1a1aa; font-size: 13px; display: block; margin-top: 25px; text-decoration: none; transition: 0.2s;">
