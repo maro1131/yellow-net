@@ -6,81 +6,127 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="auth-logo" style="margin-bottom: 40px;">YellowNet<span>●</span></div>
-        <div style="color: #a1a1aa; font-size: 14px; margin-bottom: 20px;">Мой профиль</div>
-        <div style="font-size: 18px; font-weight: bold; color: white;">@{{ user }}</div>
-    </div>
-
-    <div class="main-content">
-        <div class="header-top">
-            <h2>Добро пожаловать, {{ user }}! ✌️</h2>
-            <a href="/logout" class="logout-btn">Выйти</a>
-        </div>
-
-        <div class="grid-container">
-            <!-- Левая колонка -->
-            <div>
-                <div class="card">
-                    <h3>Отправить видео 🎥</h3>
-                    <form action="/upload_video" method="POST" enctype="multipart/form-data">
-                        <input type="text" name="receiver" class="input-field" placeholder="Кому (логин друга)" required>
-                        <input type="file" name="video_file" class="input-field" accept="video/*" required style="padding: 9px;">
-                        <button type="submit" class="btn-primary">Отправить</button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <h3>Добавить друга 🤝</h3>
-                    <form action="/add_friend" method="POST" style="display: flex; gap: 10px;">
-                        <input type="text" name="friend_name" class="input-field" placeholder="Логин пользователя" required style="margin: 0;">
-                        <button type="submit" class="btn-primary" style="width: auto; padding: 0 20px;">+</button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <h3>Мои друзья 👥</h3>
-                    <ul class="item-list">
-                        {% for friend in friends %}
-                            <li>@{{ friend }}</li>
-                        {% else %}
-                            <li style="color: #71717a;">Список друзей пока пуст</li>
-                        {% endfor %}
-                    </ul>
+    <div class="dashboard-layout">
+        <!-- Боковая панель (Профиль) -->
+        <aside class="sidebar">
+            <div class="auth-logo" style="margin-bottom: 30px; font-size: 24px;">YellowNet<span>●</span></div>
+            
+            <div class="profile-widget">
+                <div class="avatar-circle">👤</div>
+                <h2 style="font-size: 18px; margin-bottom: 5px;">@{{ user }}</h2>
+                <p style="color: #a1a1aa; font-size: 13px;">{{ bio }}</p>
+                <div class="stats-row">
+                    <div class="stat-item"><span>Друзей</span><strong>{{ stats.friends }}</strong></div>
+                    <div class="stat-item"><span>Видео</span><strong>{{ stats.videos }}</strong></div>
                 </div>
             </div>
 
-            <!-- Правая колонка -->
-            <div>
-                <div class="card">
-                    <h3>Уведомления 🔔</h3>
-                    <ul class="item-list">
-                        {% for note in notifications %}
-                            <li>{{ note[0] }} <span style="color: #71717a; font-size: 11px; float: right;">{{ note[1][:10] }}</span></li>
-                        {% else %}
-                            <li style="color: #71717a;">Новых уведомлений нет</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+            <nav style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="#" style="color: #fff; text-decoration: none; padding: 10px; background: #18181b; border-radius: 8px;">🏠 Моя лента</a>
+                <a href="/logout" style="color: #ef4444; text-decoration: none; padding: 10px; border-radius: 8px; transition: 0.2s;">🚪 Выйти из аккаунта</a>
+            </nav>
+        </aside>
 
-                <div class="card">
-                    <h3>Полученные видео 🎬</h3>
-                    {% for video in videos %}
-                        <div class="video-box">
-                            <div style="font-size: 14px; margin-bottom: 10px;">
-                                От: <b>@{{ video[1] }}</b> <span style="color: #71717a; font-size: 12px;">({{ video[2][:16] }})</span>
+        <!-- Основной контент -->
+        <main class="main-content">
+            <header class="header-top">
+                <h1 style="font-size: 24px; font-weight: 700;">Лента событий</h1>
+            </header>
+
+            <div class="grid-layout">
+                <!-- Левая колонка: Действия -->
+                <div>
+                    <div class="glass-card">
+                        <h3>🎥 Загрузить медиа</h3>
+                        <form action="/upload_video" method="POST" enctype="multipart/form-data">
+                            <input type="text" name="receiver" class="input-field" placeholder="Логин получателя" required>
+                            <input type="file" name="video_file" class="input-field" accept="video/*" required style="padding: 10px; background: #121214;">
+                            <button type="submit" class="btn-primary">Отправить видео</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-card">
+                        <h3>🤝 Управление связями</h3>
+                        <form action="/add_friend" method="POST" style="display: flex; gap: 10px;">
+                            <input type="text" name="friend_name" class="input-field" placeholder="Найти пользователя" required style="margin: 0;">
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 20px;">Добавить</button>
+                        </form>
+                        <div style="margin-top: 15px; background: #121214; padding: 15px; border-radius: 12px; border: 1px solid #27272a;">
+                            <h4 style="font-size: 14px; color: #a1a1aa; margin-bottom: 10px;">Список друзей:</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                {% for friend in friends %}
+                                    <span style="background: #27272a; padding: 5px 12px; border-radius: 20px; font-size: 13px;">@{{ friend }}</span>
+                                {% else %}
+                                    <span style="color: #71717a; font-size: 13px;">Пока нет друзей</span>
+                                {% endfor %}
                             </div>
-                            <video controls>
-                                <source src="{{ url_for('static', filename='uploads/' + video[0]) }}" type="video/mp4">
-                                Ваш браузер не поддерживает видео.
-                            </video>
                         </div>
-                    {% else %}
-                        <p style="color: #71717a; font-size: 14px;">Вам пока не присылали видео.</p>
-                    {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Правая колонка: Лента -->
+                <div>
+                    <div class="glass-card" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+                        <h3 style="margin-bottom: 15px;">🎬 Входящие видео</h3>
+                        {% for video in videos %}
+                            <article class="video-post">
+                                <div class="video-header">
+                                    <span class="video-user">@{{ video[2] }}</span>
+                                    <span style="color: #71717a; font-size: 12px;">{{ video[4][:16] }}</span>
+                                </div>
+                                <video controls preload="metadata">
+                                    <source src="{{ url_for('static', filename='uploads/' + video[1]) }}" type="video/mp4">
+                                </video>
+                                <div class="video-actions">
+                                    <button class="action-btn" onclick="likeVideo({{ video[0] }}, this)">
+                                        ❤️ <span class="likes-count">{{ video[3] }}</span>
+                                    </button>
+                                </div>
+                            </article>
+                        {% else %}
+                            <div class="glass-card"><p style="color: #71717a; text-align: center;">Лента пуста.</p></div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
+
+    <!-- Всплывающие уведомления (Тосты) -->
+    <div class="toast-container" id="toastContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast" style="border-left-color: {% if category == 'error' %}#ef4444{% else %}#facc15{% endif %};">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        // Скрипт для интерактивных лайков без перезагрузки страницы!
+        function likeVideo(videoId, btnElement) {
+            fetch(`/like_video/${videoId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    btnElement.querySelector('.likes-count').innerText = data.likes;
+                    btnElement.style.color = '#ef4444'; // Красим сердечко
+                }
+            });
+        }
+
+        // Автоматически скрываем тосты через 4 секунды
+        setTimeout(() => {
+            const toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                toast.style.opacity = '0';
+                toast.style.transition = '0.5s';
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    </script>
 </body>
 </html>
