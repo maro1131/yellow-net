@@ -2,34 +2,36 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>YellowNet — Социальная сеть</title>
+    <title>YellowNet — Лента</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="dashboard-layout">
-        <!-- Боковая панель профиля -->
+        <!-- Левый сайдбар -->
         <aside class="sidebar">
-            <div class="auth-logo" style="margin-bottom: 25px; font-size: 24px;">YellowNet<span>●</span></div>
-            
-            <div class="profile-widget">
-                <img src="{{ url_for('static', filename='avatars/' + avatar) }}" class="avatar-img" alt="Avatar">
-                <h2 style="font-size: 17px; margin-bottom: 6px; color: #fff;">@{{ user }}</h2>
-                <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 15px; line-height: 1.4;">{{ bio }}</p>
-                <div class="stats-row">
-                    <div class="stat-item"><span>Друзей</span><strong>{{ stats.friends }}</strong></div>
-                    <div class="stat-item"><span>Видео</span><strong>{{ stats.videos }}</strong></div>
+            <div>
+                <div class="auth-logo" style="margin-bottom: 25px; font-size: 24px;">YellowNet<span>●</span></div>
+                
+                <div class="profile-widget">
+                    <img src="{{ url_for('static', filename='avatars/' + avatar) }}" class="avatar-img" alt="Avatar">
+                    <h2 style="font-size: 17px; margin-bottom: 6px; color: #fff; font-weight: 700;">@{{ user }}</h2>
+                    <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 16px; line-height: 1.4;">{{ bio }}</p>
+                    <div class="stats-row">
+                        <div class="stat-item"><span>Друзей</span><strong>{{ stats.friends }}</strong></div>
+                        <div class="stat-item"><span>Видео</span><strong>{{ stats.videos }}</strong></div>
+                    </div>
                 </div>
             </div>
 
-            <nav style="display: flex; flex-direction: column; gap: 8px; margin-top: auto;">
-                <a href="/logout" style="color: #ef4444; text-decoration: none; padding: 12px; background: rgba(239, 68, 68, 0.05); border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; border: 1px solid rgba(239, 68, 68, 0.1);">🚪 Выйти из аккаунта</a>
+            <nav>
+                <a href="/logout" style="color: #f87171; text-decoration: none; padding: 12px; background: rgba(239, 68, 68, 0.08); border-radius: 12px; font-size: 14px; font-weight: 700; display: block; text-align: center; border: 1px solid rgba(239, 68, 68, 0.15); transition: 0.2s;">Выйти из аккаунта</a>
             </nav>
         </aside>
 
-        <!-- Основная область -->
+        <!-- Основной контент -->
         <main class="main-content">
-            <header class="header-top">
-                <h1 style="font-size: 24px; font-weight: 700; color: #fff;">Лента событий</h1>
+            <header class="main-header">
+                <h1>Лента событий</h1>
             </header>
 
             <div class="grid-layout">
@@ -39,79 +41,78 @@
                     <div class="glass-card">
                         <h3>⚙️ Настройки профиля</h3>
                         <form action="/update_profile" method="POST" enctype="multipart/form-data">
-                            <input type="text" name="bio" class="input-field" placeholder="Ваш новый статус (био)" value="{{ bio }}">
-                            <div style="margin-bottom: 10px; font-size: 12px; color: #a1a1aa;">Загрузить аватарку:</div>
-                            <input type="file" name="avatar_file" class="input-field" accept="image/*" style="padding: 10px; background: #0d0d0f;">
-                            <button type="submit" class="btn-primary" style="font-size: 13px; padding: 12px;">Сохранить изменения</button>
+                            <input type="text" name="bio" class="input-field" placeholder="Ваш статус (био)" value="{{ bio }}">
+                            <div style="margin-bottom: 6px; font-size: 12px; color: #a1a1aa; font-weight: 500;">Загрузить аватарку:</div>
+                            <div class="file-upload-box">
+                                <input type="file" name="avatar_file" accept="image/*" style="color: #a1a1aa; font-size: 13px; width: 100%;">
+                            </div>
+                            <button type="submit" class="btn-primary" style="padding: 12px; font-size: 14px;">Сохранить изменения</button>
                         </form>
                     </div>
 
-                    <!-- Загрузка видео -->
+                    <!-- Публикация контента -->
                     <div class="glass-card">
                         <h3>🎥 Публикация контента</h3>
                         <form action="/upload_video" method="POST" enctype="multipart/form-data">
                             <input type="text" name="receiver" class="input-field" placeholder="Логин получателя (если лично)">
-                            <div style="margin-bottom: 12px; font-size: 13px; color: #a1a1aa; display: flex; align-items: center; gap: 10px;">
-                                <input type="checkbox" name="is_global" id="is_global" style="accent-color: #facc15; width: 16px; height: 16px;"> 
-                                <label for="is_global" style="cursor: pointer;">Опубликовать для всех (в общий мир)</label>
+                            <div style="margin-bottom: 14px; font-size: 13px; color: #d4d4d8; display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" name="is_global" id="is_global" style="accent-color: #facc15; width: 16px; height: 16px; cursor: pointer;"> 
+                                <label for="is_global" style="cursor: pointer; font-weight: 500;">Опубликовать для всех (в общий мир)</label>
                             </div>
-                            <input type="file" name="video_file" class="input-field" accept="video/*" required style="padding: 10px; background: #0d0d0f;">
-                            <button type="submit" class="btn-primary" style="font-size: 13px; padding: 12px;">Опубликовать видео</button>
+                            <div class="file-upload-box">
+                                <input type="file" name="video_file" accept="video/*" required style="color: #a1a1aa; font-size: 13px; width: 100%;">
+                            </div>
+                            <button type="submit" class="btn-primary" style="padding: 12px; font-size: 14px;">Опубликовать видео</button>
                         </form>
                     </div>
 
-                    <!-- Друзья -->
+                    <!-- Управление друзьями -->
                     <div class="glass-card">
                         <h3>🤝 Управление друзьями</h3>
                         <form action="/add_friend" method="POST" style="display: flex; gap: 10px;">
                             <input type="text" name="friend_name" class="input-field" placeholder="Введите логин пользователя" required style="margin: 0;">
-                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 20px; font-size: 16px;">+</button>
+                            <button type="submit" class="btn-primary" style="width: auto; padding: 0 20px; font-size: 18px;">+</button>
                         </form>
-                        <div style="margin-top: 15px; background: #0d0d0f; padding: 14px; border-radius: 14px; border: 1px solid #1f1f22;">
-                            <span style="display: block; font-size: 12px; color: #71717a; margin-bottom: 10px; text-transform: uppercase;">Ваши друзья (кликните для чата):</span>
-                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                                {% for friend in friends %}
-                                    <span onclick="openChat('{{ friend }}')" style="background: #27272a; padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; color: #facc15; font-weight: 500; transition: 0.2s;" onmouseover="this.style.background='#3f3f46'" onmouseout="this.style.background='#27272a'">@{{ friend }} 💬</span>
-                                {% else %}
-                                    <span style="color: #71717a; font-size: 13px;">У вас пока нет добавленных друзей</span>
-                                {% endfor %}
-                            </div>
+                        <div style="margin-top: 14px; font-size: 12px; color: #71717a; font-weight: 600; text-transform: uppercase;">Ваши друзья (клиКните для чата):</div>
+                        <div class="friends-container">
+                            {% for friend in friends %}
+                                <span class="friend-badge" onclick="openChat('{{ friend }}')">@{{ friend }} 💬</span>
+                            {% else %}
+                                <span style="color: #71717a; font-size: 13px; padding: 4px;">У вас пока нет добавленных друзей</span>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <!-- Правая колонка ленты и чата -->
+                <!-- Правая колонка: чат и лента -->
                 <div>
-                    <!-- Интерактивный чат (скрыт, пока не выбран друг) -->
+                    <!-- Чат (скрыт пока не нажмут на друга) -->
                     <div class="glass-card" id="chatCard" style="display: none; border-color: rgba(250, 204, 21, 0.3);">
-                        <h3>💬 Чат с пользователем <span id="chatFriendName" style="color: #facc15;"></span></h3>
+                        <h3>💬 Чат с <span id="chatFriendName" style="color: #facc15;"></span></h3>
                         <div class="chat-box">
                             <div class="chat-messages" id="chatMessages"></div>
                             <div style="display: flex; gap: 8px;">
                                 <input type="text" id="chatInput" class="input-field" placeholder="Введите сообщение..." style="margin: 0; font-size: 13px;" onkeypress="if(event.key === 'Enter') sendMessage()">
-                                <button onclick="sendMessage()" class="btn-primary" style="width: auto; padding: 0 20px;">➤</button>
+                                <button onclick="sendMessage()" class="btn-primary" style="width: auto; padding: 0 20px; font-size: 16px;">➤</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Лента видео -->
                     <div class="glass-card" style="padding: 0; background: transparent; border: none; box-shadow: none;">
-                        <h3 style="margin-bottom: 15px;">🎬 Активная лента</h3>
+                        <h3 style="margin-bottom: 16px;">🔥 Активная лента</h3>
                         {% for video in videos %}
                             <article class="video-post">
                                 <div class="video-header">
-                                    <span class="video-user">@{{ video[2] }} {% if video[5] == 1 %}<span style="color: #38bdf8; font-size: 11px;">(🌍 Общий мир)</span>{% endif %}</span>
+                                    <span class="video-user">@{{ video[2] }} {% if video[5] == 1 %}<span style="color: #38bdf8; font-size: 11px; font-weight: 500;">(🌍 Общий мир)</span>{% endif %}</span>
                                     <span style="color: #71717a; font-size: 11px;">{{ video[4][:16] }}</span>
                                 </div>
                                 <video controls preload="metadata">
                                     <source src="{{ url_for('static', filename='uploads/' + video[1]) }}" type="video/mp4">
-                                    Ваш браузер не поддерживает видео.
                                 </video>
-                                <div style="display: flex; align-items: center; justify-content: space-between;">
-                                    <button class="action-btn" onclick="likeVideo({{ video[0] }}, this)">
-                                        ❤️ <span class="likes-count">{{ video[3] }}</span>
-                                    </button>
-                                </div>
+                                <button class="action-btn" onclick="likeVideo({{ video[0] }}, this)">
+                                    ❤️ <span class="likes-count">{{ video[3] }}</span>
+                                </button>
                             </article>
                         {% else %}
                             <div class="glass-card" style="text-align: center; padding: 40px;">
@@ -122,17 +123,6 @@
                 </div>
             </div>
         </main>
-    </div>
-
-    <!-- Всплывающие уведомления -->
-    <div class="toast-container" id="toastContainer">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="toast">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
     </div>
 
     <script>
@@ -175,7 +165,6 @@
             });
         }
 
-        // Авто-обновление чата каждые 3 секунды
         setInterval(() => {
             if (currentFriend) loadMessages();
         }, 3000);
@@ -186,6 +175,7 @@
             .then(data => {
                 if (data.status === 'success') {
                     btnElement.querySelector('.likes-count').innerText = data.likes;
+                    btnElement.style.borderColor = '#ef4444';
                     btnElement.style.color = '#ef4444';
                 }
             });
